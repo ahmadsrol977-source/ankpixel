@@ -345,7 +345,7 @@ const VID=[
 /* Tim project */
 const TEAM=[["ChatGPT","Research & Strategy","Membantu riset, pengembangan ide, penulisan, perencanaan, dan evaluasi kreatif.","#10a37f","AI"],["Canva","Visual Design","Mendukung pembuatan desain grafis, presentasi, dan materi visual.","#20b9c7","C"],["CapCut","Video Production","Mendukung editing video, penyusunan konten, dan produksi video pendek.","#333333","CC"],["Google AI Studio","AI Audio","Membantu eksplorasi dan generasi audio berbasis AI.","#4285f4","G"],["Metricool","Social Scheduling","Membantu penjadwalan dan pengelolaan publikasi media sosial.","#7d5be8","M"],["GitHub","Web Development","Menjadi rumah kode, pengelolaan versi, dan publikasi website.","#24292f","GH"]];
 /* MUSIK WEBSITE: unggah file What_If_I_Call.m4a ke folder utama repository. Pemutar menggunakan file audio M4A yang disediakan. */
-const MUSIC=[{t:"What If I Call",a:"Alex Crichton",src:"What_If_I_Call.m4a"}];
+const MUSIC=[{t:"What If I Call",a:"Alex Crichton",src:"What_If_I_Call.mp3"}];
 /* ============================================= */
 const $=s=>document.querySelector(s),T=(id,w)=>`https://drive.google.com/thumbnail?id=${id}&sz=w${w}`;
 const used=[...new Set(W.map(w=>w[1]))];
@@ -414,11 +414,11 @@ $('#vg').onclick=e=>{const v=e.target.closest('.vid[data-v]');if(!v||v.querySele
 /* musik */
 const au=$('#au'),mpb=$('#mpb'),pp=$('#pp'),seek=$('#seek');let ti=-1,tracks=[...MUSIC];
 function rl(){$('#pl').innerHTML=tracks.length?tracks.map((t,i)=>`<button data-i="${i}" class="${i===ti?'on':''}">${t.t}${t.a?' — '+t.a:''}</button>`).join(''):'<div style="color:var(--mute);padding:6px 8px">Tambahkan lagu dengan tombol di bawah.</div>'}
-function load(i){if(!tracks.length)return;ti=(i+tracks.length)%tracks.length;au.src=tracks[ti].src;$('#mpt').textContent=tracks[ti].t;$('#mpn').textContent=tracks[ti].t;rl()}
-function play(){if(ti<0)load(0);if(ti<0)return;au.play().catch(()=>{})}
+function load(i){if(!tracks.length)return;ti=(i+tracks.length)%tracks.length;au.pause();au.src=new URL(tracks[ti].src,document.baseURI).href;au.load();$('#mpt').textContent=tracks[ti].t;$('#mpn').textContent=tracks[ti].t;rl()}
+async function play(){if(ti<0)load(0);if(ti<0)return;try{await au.play()}catch(err){$('#mpt').textContent="Musik gagal dimuat — periksa file What_If_I_Call.mp3";console.error("Audio playback error:",err)}}
 mpb.onclick=()=>$('#mpx').classList.toggle('on');mpb.onkeydown=e=>{if(e.key==='Enter')mpb.click()};
 pp.onclick=()=>au.paused?play():au.pause();$('#nx').onclick=()=>{load(ti+1);play()};$('#pv').onclick=()=>{load(ti-1);play()};
-au.onplay=()=>{mpb.classList.add('pl');pp.textContent='❚❚'};au.onpause=()=>{mpb.classList.remove('pl');pp.textContent='▶'};au.onended=()=>{load(ti+1);play()};
+au.onplay=()=>{mpb.classList.add('pl');pp.textContent='❚❚'};au.onpause=()=>{mpb.classList.remove('pl');pp.textContent='▶'};au.onended=()=>{load(ti+1);play()};au.onerror=()=>{$('#mpt').textContent='File musik tidak ditemukan atau format tidak didukung.';console.error('Audio file error:',au.error)};
 au.ontimeupdate=()=>{if(au.duration)seek.value=au.currentTime/au.duration*100};seek.oninput=()=>{if(au.duration)au.currentTime=seek.value/100*au.duration};
 $('#pl').onclick=e=>{const b=e.target.closest('button');if(b){load(+b.dataset.i);play()}};
 
